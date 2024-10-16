@@ -22,7 +22,7 @@ load_dotenv(override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-HOSTNAME = os.getenv("HOST") or 'localhost:8000'
+HOSTNAME = os.getenv("HOSTNAME") or 'localhost:8000'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
