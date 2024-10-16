@@ -1,0 +1,36 @@
+version: '3.3'
+
+services:
+  cylvarkana_db:
+    image: postgres:13
+    container_name: cylvarkana_db
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - cylvarkana_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - mycorrhizal-net
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mycorrhizal-net
+    restart: always
+
+volumes:
+  cylvarkana_data:
+  redis_data:
+
+networks:
+  mycorrhizal-net:
+    driver: bridge

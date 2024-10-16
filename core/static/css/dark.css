@@ -1,0 +1,102 @@
+/* General Styles */
+body, html {
+    color: #49eaff;
+    background-color: #000;
+}
+
+/* Fonts */
+h1, h2 {
+    color: #2ee948;
+}
+
+/* Header */
+header {
+    background-color: #04122a;
+    color: #fff;
+    border-bottom: solid 3px #ffffff;
+    box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.5);
+}
+
+.dropbtn {
+    color: #fff;
+    background-color: #04122a;
+}
+
+.dropdown-content {
+    background-color: #04122a;
+    border-left: solid 3px #ffffff;
+    border-bottom: solid 3px #ffffff;
+}
+
+.dropdown-content a,
+.sidebar-links a,
+.unauthenticated a {
+    color: #ffffff;
+}
+
+.dropdown-content a:hover,
+.sidebar-links a:hover,
+.dropdown:hover .dropbtn,
+.dropdown-content button:hover,
+.unauthenticated input.submit:hover,
+.unauthenticated a:hover {
+    color: #49eaff;
+}
+
+.nav-icon {
+    filter: invert(100%) brightness(100%);
+}
+
+/* Sidebar and Main Content for Index Page */
+.sidebar {
+    background-color: #04122a;
+    border-right: solid 3px #ffffff;
+    border-top: solid 3px #ffffff;
+}
+
+.sidebar-toggle {
+    color: #fff;
+}
+
+.toggle-arrow {
+    background-color: #04122a;
+    border: 2px solid #2ee948; /* Temporary to see the toggle */
+}
+
+.toggle-arrow:hover {
+    background-color: #49eaff;
+}
+
+/* Main */
+.unauthenticated input.submit {
+    color: #fff;
+}
+
+.unauthenticated td.login input {
+    background-color: #000;
+    color: #2ee948;
+    border-left: solid 3px #ffffff;
+    border-bottom: solid 3px #ffffff;
+}
+
+/* Table header styling */
+.main-content th {
+    border: 1px solid white;
+    color: #2ee948;
+    padding: 12px;
+}
+
+/* Table cell styling */
+.main-content td {
+    border: 1px solid white;
+}
+
+/* Hover effect for rows */
+.main-content tr:hover {
+    color: white;
+    background-color: #49eaff;
+}
+
+#ambivis-logo {
+    border: 3px #2ee948 solid;
+}

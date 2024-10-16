@@ -1,0 +1,9 @@
+# Core requirements of the cylvarkana Django App
+django
+python-dotenv
+psycopg2-binary
+celery[redis]
+django-celery-beat
+django-celery-results
+django-encrypted-model-fields
+colorama

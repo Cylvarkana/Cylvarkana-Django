@@ -1,0 +1,31 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="unauthenticated">
+  <p>Logged out!</p>
+  <div id="countdown">Redirecting in 3 seconds...</div>
+
+    <script>
+        // Set the countdown time in seconds
+        var countdownTime = 3;
+
+        // Function to update the countdown timer
+        function updateCountdown() {
+            var countdownElement = document.getElementById('countdown');
+            countdownElement.textContent = 'Redirecting in ' + countdownTime + ' seconds...';
+
+            if (countdownTime <= 0) {
+                // Redirect when countdown reaches zero
+                window.location.href = "{% url 'login' %}";
+            } else {
+                // Decrease countdown time and update every second
+                countdownTime--;
+                setTimeout(updateCountdown, 1000);
+            }
+        }
+
+        // Start the countdown
+        updateCountdown();
+    </script>
+</div>
+{% endblock %}

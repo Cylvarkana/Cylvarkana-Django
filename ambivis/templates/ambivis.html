@@ -1,0 +1,106 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Cylvarkana: Ambivis{% endblock %}
+
+{% block content %}
+
+<!-- Sidebar -->
+<!-- <div class="content-with-sidebar">
+    <aside class="sidebar">
+        <div class="sidebar-toggle">
+            <span class="toggle-arrow">&laquo;</span>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="#">#TODO</a></li>
+        </ul>
+    </aside>
+
+  {% load static %}
+  <script src="{% static 'js/side-bar.js' %}"></script> 
+</div> -->
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="column">
+        <div>
+            <img id="ambivis-logo" src="{% static 'images/ambivis.png' %}">
+        </div>
+        <div>
+            <h1>Ambivis Discord Bot</h1>
+
+            <div>
+                <strong>Last Server Sync:</strong> {{ last_sync }}
+            </div>
+
+            <div>
+                <strong>Total Discord Channels:</strong> {{ channel_count }}
+            </div>
+
+            <div>
+                <strong>Discord Channels:</strong>
+                <ul>
+                    {% for channel in channels %}
+                        <li>{{ channel.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="column">
+        <table>
+            <tr>
+                <th colspan="3" style="text-align: center;">RSS Data</th>
+            </tr>
+            <tr>
+                <td>Sources</td>
+                <td>Entries</td>
+                <td>Active Filters</td>
+            </tr>
+            <tr>
+                <td>{{ rss_source_count }}</td>
+                <td>{{ rss_entry_count }}</td>
+                <td>{{ active_filter_count }}</td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <th colspan="3" style="text-align: center;">Bot Tasks</th>
+            </tr>
+            <tr>
+                <td>Pending</td>
+                <td>Processed</td>
+                <td>Last Processed</td>
+            </tr>
+            <tr>
+                <td>{{ pending_tasks_count }}</td>
+                <td>{{ processed_tasks_count }}</td>
+                <td>{{ last_processed_task_date }}</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th colspan="4" style="text-align: center;">Members</th>
+            </tr>
+            <tr>
+                <th>Guild</th>
+                <th>Users</th>
+                <th>Bots</th>
+                <th>Total</th>
+            </tr>
+            
+            
+            {% for guild, col in user_count.items %}
+            <tr>
+                <td>{{ guild }}</td>
+                <td>{{ col.0 }}</td>
+                <td>{{ col.1 }}</td>
+                <td>{{ col.2 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div> 
+{% endblock %}

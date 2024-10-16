@@ -1,0 +1,81 @@
+{% extends "base_generic.html" %}
+
+{% load static %}
+
+{% block title %}Cylvarkana: Login{% endblock %}
+
+{% block content %}
+
+  <!-- Main Content -->
+  <div class="unauthenticated">
+
+    <h2 id="flickering-text">Welcome to the Wood Wide Web</h2>
+    <script src="{% static 'js/flicker.js' %}"></script>
+
+    {% if form.errors %}
+      <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+
+    {% if next %}
+      {% if user.is_authenticated %}
+        <p>
+          Your account doesn't have access to this page. 
+          To proceed, please login with an account that has access.
+      </p>
+      {% elif not form.errors %}
+        <p>Please login to see this page.</p>
+      {% endif %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}" id="login-form">
+      {% csrf_token %}
+      <table id="login-table">
+        <tr>
+          <td>{{ form.username.label_tag }}</td>
+          <td class="login">{{ form.username }}</td>
+        </tr>
+        <tr id="password-row">
+          <td>{{ form.password.label_tag }}</td>
+          <td class="login">{{ form.password }}</td>
+        </tr>
+      </table>
+      <input type="hidden" name="next" value="{{ next|default:'/ambivis' }}">
+    </form>
+
+    <!-- <p><a href="{% url 'password_reset' %}">Lost password?</a></p> -->
+  </div> 
+
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+      const usernameField = document.querySelector('input[name="{{ form.username.html_name }}"]');
+      const passwordRow = document.getElementById('password-row');
+      const loginForm = document.getElementById('login-form');
+
+      function updatePasswordRowVisibility() {
+        if (usernameField.value.trim() === "") {
+          passwordRow.style.display = 'none';
+        } else {
+          passwordRow.style.display = '';
+        }
+      }
+
+      // Show password row if there are form errors
+      if ({{ form.errors|length }} > 0) {
+        passwordRow.style.display = '';
+      }
+
+      // Update visibility based on username input
+      usernameField.addEventListener('input', updatePasswordRowVisibility);
+
+      // Initial check on page load
+      updatePasswordRowVisibility();
+
+      // Submit the form when Enter is pressed
+      loginForm.addEventListener('keypress', function(event) {
+        if (event.key === "Enter") {
+          loginForm.submit();
+        }
+      });
+    });
+  </script>
+{% endblock %}

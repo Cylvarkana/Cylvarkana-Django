@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cylvarkana{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'images/cylvarkana_favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}" />
+</head>
+<body>
+  <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <div class="header-content">
+                <img src="{% static 'images/cylvarkana.png' %}" alt="Site Logo" class="site-logo">
+                <h1 class="site-title">Cylvarkana</h1>
+            </div>
+            {% if user.is_authenticated %}
+            <nav class="site-nav">
+                <div class="dropdown">
+                    <button class="dropbtn">☰</button>
+                    <div class="dropdown-content">
+                        <li><a href="{% url 'ambivis:summary' %}">Ambivis</a></li>
+                        {% if user.is_superuser %}
+                        <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                        {% endif %}
+                        <li>
+                            <form id="logout-form" method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link">Logout</button>
+                            </form>
+                        </li>
+                    </div>
+                </div>
+            </nav>
+            {% else %}
+            <nav class="site-nav">
+                <div class="dropdown">
+                    <button class="dropbtn">☰</button>
+                    <div class="dropdown-content">
+                        <li><a href="{% url 'login'%}">Login</a></li>
+                        <li><a href="{% url 'password_reset' %}">Help</a></li>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+                        
+        </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-content-wrapper">
+      {% block content %}
+      <!-- Page-specific content goes here -->
+      {% endblock %}
+  </div>
+
+</body>
+</html>

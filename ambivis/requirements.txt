@@ -1,0 +1,8 @@
+# Additional requirements of the Ambivis app
+discord
+requests
+feedparser
+djangorestframework-simplejwt
+bs4
+html2text
+shodan

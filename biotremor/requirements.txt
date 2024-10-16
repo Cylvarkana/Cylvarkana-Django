@@ -1,0 +1,4 @@
+# Additional requirements of the BioTremor app
+ratelimit
+requests
+scikit-learn

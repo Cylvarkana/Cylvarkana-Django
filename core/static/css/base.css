@@ -1,0 +1,242 @@
+/* General Styles */
+@font-face {
+    font-family: 'PressStart2P';
+    src: url('/static/fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'PressStart2P', sans-serif;
+    line-height: 1.5;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropbtn {
+    font-size: 24px;
+    margin-right: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 160px;
+    z-index: 1;
+    right: 0;
+}
+
+.header-content a {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+}
+
+.dropdown-content li,
+.sidebar li {
+    list-style: none;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.site-logo {
+    height: 40px;
+    margin-right: 15px;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.site-title {
+    margin: 0;
+    font-size: 24px;
+}
+
+.dropdown-content button {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 10px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.nav-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Content Wrapper */
+.main-content-wrapper {
+    margin-top: 60px;
+    overflow-y: auto;
+    height: calc(100vh - 60px);
+}
+
+/* Sidebar and Main Content for Index Page */
+.content-with-sidebar {
+    display: flex;
+    padding: 20px 0px 0px 0px;
+    height: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    padding: 10px;
+    position: relative;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 2px;
+}
+.sidebar.collapsed .sidebar-links {
+    display: None;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 10px;
+    right: -20px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 50%;
+    z-index: 100;
+}
+
+.sidebar-links ul,
+.sidebar-links form {
+    list-style: none;
+}
+
+.sidebar-links a,
+.unauthenticated a {
+    padding-bottom: 5px;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+}
+
+.toggle-arrow {
+    display: block;
+    z-index: 100;
+}
+
+/* Main */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.unauthenticated {
+    margin-top: 8rem;
+    flex-grow: 1;
+    padding: 60px;
+    overflow-y: auto;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+.unauthenticated table,
+.unauthenticated input.submit {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.unauthenticated td.login input {
+    font-family: 'PressStart2P', sans-serif;
+    padding: 4px;
+}
+
+.unauthenticated input.submit {
+    padding: 6px 8px;
+    display: block;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Basic table styling inside .main-content */
+.main-content table {
+    border-collapse: collapse;
+    margin: 12px 0;
+    text-align: left;
+}
+
+/* Table header styling */
+.main-content th,
+.main-content td {
+    padding: 6px;
+}
+
+/* Table responsive styling */
+@media (max-width: 600px) {
+    .main-content table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+.column {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Optional: Style for images to make them responsive */
+.column img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#ambivis-logo {
+    height: 600px;
+    border-radius: 50%;
+}
