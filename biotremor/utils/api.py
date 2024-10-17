@@ -342,7 +342,7 @@ class NIST:
         self.base_url = "https://services.nvd.nist.gov/rest/json"
 
         # Add backoff time for slow NIST API
-        self.backoff_time = 5
+        self.backoff_time = 10
 
     @sleep_and_retry
     @limits(calls=30, period=60)
