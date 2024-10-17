@@ -11,15 +11,26 @@ License:     CC BY 4.0
 -------------------------------------------------------------------------------
 """
 from celery import shared_task
+
+from core.models import Credential
+from core.utils.format import validate_cve
+
 from .apps import logger
+from .models import PreProcessedCVE, CVERating, CVE, Weakness
+from .utils.hoot import (
+    pre_process_dataset,
+    extract_features_and_labels,
+    train_and_save_model,
+    split_data,
+    predict_cve
+)
+from .utils.system import cve_lookup, cwe_lookup, seed_db
 
 @shared_task
 def prep_model(train: bool=True):
     """
     Pre-process manually rated CVEs
     """
-    from .models import PreProcessedCVE, CVERating
-    from .utils.hoot import pre_process_dataset
 
     # Start with a clean slate
     PreProcessedCVE.objects.all().delete()
@@ -44,8 +55,6 @@ def train_model(train_percent: float=0.8, model_name: str="cve_model"):
     """
     Train a machine learning model on the pre-processed CVE data.
     """
-    from .utils.hoot import extract_features_and_labels, train_and_save_model, split_data
-    from .models import PreProcessedCVE
 
     preprocessed_data = PreProcessedCVE.objects.all()
 
@@ -83,12 +92,6 @@ def predict_priority(cveId: str, model_name: str = "cve_model"):
         cve_id (str): The ID of the CVE to predict.
         model_name (str): The name of the model to use for prediction.
     """
-    from .utils.hoot import predict_cve
-    from .utils.system import cve_lookup
-    from .models import CVERating, CVE
-    from core.models import Credential
-    from core.utils.format import validate_cve
-
     # Input checking
     cveId = validate_cve(cveId)
     if not cveId:
@@ -96,7 +99,13 @@ def predict_priority(cveId: str, model_name: str = "cve_model"):
 
     # Fetch the CVE object using the provided cve_id
     try:
-        cve = cve_lookup(cveId=cveId, nist_api_key=Credential.objects.get(cred_type="key", platform='nist').value)
+        cve = cve_lookup(
+            cveId=cveId,
+            nist_api_key=Credential.objects.get(
+                cred_type="key",
+                platform='nist'
+            ).value
+        )
     except CVE.DoesNotExist:
         logger.error(f"CVE with ID {cveId} does not exist.")
         return None
@@ -104,8 +113,12 @@ def predict_priority(cveId: str, model_name: str = "cve_model"):
     cve_rating = CVERating.objects.filter(cve=cve).first()
     if not cve_rating:
         try:
-            cve_rating = predict_cve(cve=cve, model_name=model_name)
+            cve_rating = predict_cve(
+                cve=cve,
+                model_name=model_name
+            )
             logger.info(f"BioTremor rated {cveId} as {cve_rating.priority}")
+
             return cve_rating
         except Exception as e:
             logger.error(f"Error predicting priority for CVE {cveId}: {e}")
@@ -123,9 +136,6 @@ def backfill_weakness_cwe(weaknesses=None):
     weaknesses : QuerySet, optional
         A queryset of Weakness instances to process. Defaults to all Weakness objects where cwe__isnull=True.
     """
-    from .models import Weakness
-    from .utils.system import cwe_lookup
-
     # Default to all Weakness instances missing a CWE foreign key if no queryset is provided
     if weaknesses is None:
         weaknesses = Weakness.objects.filter(cwe__isnull=True)
@@ -157,3 +167,14 @@ def backfill_weakness_cwe(weaknesses=None):
                 logger.error(f"Error looking up or updating CWE for weakness {weakness.id}: {e}")
         else:
             logger.info(f"No valid CWE ID extracted for weakness {weakness.id} with description: {weakness.description}")
+
+@shared_task
+def seed(csv_file="biotremor/data/seed.csv"):
+    """
+    Populate the database with CVE data from specified csv
+    """
+    seed_db(
+        csv_file,
+        Credential.objects.get(platform='nist', cred_type='key').value,
+        pull_updates=False
+    )
