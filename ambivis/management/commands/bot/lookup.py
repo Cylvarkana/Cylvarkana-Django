@@ -64,17 +64,25 @@ async def cve_lookup(interaction: discord.Interaction, id: str):
             )
         else:
             await interaction.followup.send(
-                f"No results found for CVE **{id.upper()}**. <:sad:1290688982681784371>",
+                f"No results found for **{id.upper()}**. <:sad:1290688982681784371>",
                 ephemeral=True
             )
 
     except Exception as e:
-        # Handle any lookup or processing errors
-        client.logger.error(f"{interaction.user} encountered an error while using cve lookup: {e}")
-        await interaction.followup.send(
-            f"⚠️🔍 We encountered an issue looking up **{id.upper()}**. Please try again later.",
-            ephemeral=True
-        )
+
+        if "No data found" in str(e):
+            client.logger.warning(e)
+            await interaction.followup.send(
+                f"No results found for **{id.upper()}**. <:sad:1290688982681784371>",
+                ephemeral=True
+            )
+        else:
+            # Unknown errors
+            client.logger.error(f"{interaction.user} encountered an error while using cve lookup: {e}")
+            await interaction.followup.send(
+                f"⚠️🔍 We encountered an issue looking up **{id.upper()}**. Please try again later.",
+                ephemeral=True
+            )
 
 # Constants for WhatsMyName lookup
 WMN_URL = "https://raw.githubusercontent.com/WebBreacher/WhatsMyName/main/wmn-data.json"
