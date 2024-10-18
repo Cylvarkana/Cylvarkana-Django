@@ -29,82 +29,103 @@ def fetch_rss_entries(source_names: list = None, initial: bool = False, send_to_
     # Must import in task to avoid circular import
     from .models import RSSSource, RSSEntry
     from .utils.api import fetch_opengraph_data
-    
+
     logger.info(f"Fetching rss entries for source(s) {', '.join(source_names) if source_names else 'all'}: initial = {initial}")
-    
+
     # Fetch all sources enabled if no specific source names are provided
     if not source_names:
         sources = RSSSource.objects.filter(enabled=True)
     else:
         sources = RSSSource.objects.filter(name__in=source_names)
-    
+
     if not sources.exists():
         return  # No sources found, exit the task
 
     for source in sources:
-        # Parse the RSS feed for each source
-        feed = feedparser.parse(source.url)
+        
+        try:
+            # Parse the RSS feed for each source
+            feed = feedparser.parse(source.url)
 
-        # Skip invalid or empty feeds
-        if 'entries' not in feed or feed.bozo:
-            continue
-
-        entries = feed.entries
-
-        for entry in entries:
-            
-            # Skip entries that are already in the database
-            if RSSEntry.objects.filter(guid=entry.guid if 'guid' in entry else entry.id).exists():
+            # Skip invalid or empty feeds
+            if 'entries' not in feed or feed.bozo:
                 continue
-            
-            published_date = timezone.now() if 'published_parsed' not in entry else timezone.make_aware(
-                timezone.datetime(*entry.published_parsed[:6])
-            )
 
-            def get_enclosure(entry):
-                """
-                Extract enclosures from rss feed
-                """
-                links = entry.links
-                permitted_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif']
-                for link in links:
-                    if link['type'] in permitted_types and 'href' in link:
-                        return link['href']
-                    
-                # Try scraping for image if not included
-                if entry.link:
-                    og_data = fetch_opengraph_data(entry.link)
-                    if og_data:
-                        return og_data.get("image", None)
-                
-                return None
+            entries = feed.entries
 
-            # Create or update RSSEntry
-            enclosure = get_enclosure(entry)
-            RSSEntry.objects.update_or_create(
-                guid=entry.guid if 'guid' in entry else entry.id,
-                defaults={
-                    'source': source,
-                    'title': entry.title,
-                    'link': entry.get('link', None),
-                    'author': entry.get('author', None),
-                    'description': entry.get('summary', ''),
-                    'enclosure': enclosure,
-                    'published_date': published_date,
-                }
-            )
+            for entry in entries:
 
-        # Mark entries as delivered for new sources if 'initial' is True
-        if initial:
-            logger.info(f"Initializing entries for new source: {source.name}")
-            rss_entries = RSSEntry.objects.filter(source=source).order_by('-published_date')
+                try:
+                    # Find unique identifier
+                    guid_options = ['guid', 'id', 'link']
+                    guid = None
+                    for opt in guid_options:
+                        if opt in entry and entry[opt]:
+                            guid = entry[opt]
+                            break
+                    if not guid:
+                        logger.error(f"No valid guid for RSS entry in {source}")
+                        continue
 
-            # Mark all but the most recent entry as delivered
-            if rss_entries.exists():
-                most_recent_entry = rss_entries.first()
-                entries_to_mark_as_delivered = rss_entries.exclude(id=most_recent_entry.id)
-                entries_to_mark_as_delivered.update(awaiting_delivery=False)
-            
+                    # Skip entries that are already in the database
+                    if RSSEntry.objects.filter(guid=guid).exists():
+                        logger.debug(f"Skipping previosly indexed entry {guid}")
+                        continue
+
+                    published_date = timezone.now() if 'published_parsed' not in entry else timezone.make_aware(
+                        timezone.datetime(*entry.published_parsed[:6])
+                    )
+
+                    def get_enclosure(entry):
+                        """
+                        Extract enclosures from rss feed
+                        """
+                        links = entry.links
+                        permitted_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif']
+                        for link in links:
+                            if link['type'] in permitted_types and 'href' in link:
+                                return link['href']
+
+                        # Try scraping for image if not included
+                        if entry.link:
+                            og_data = fetch_opengraph_data(entry.link)
+                            if og_data:
+                                return og_data.get("image", None)
+
+                        return None
+
+                    # Create or update RSSEntry
+                    enclosure = get_enclosure(entry)
+                    RSSEntry.objects.update_or_create(
+                        guid=guid,
+                        defaults={
+                            'source': source,
+                            'title': entry.title,
+                            'link': entry.get('link', None),
+                            'author': entry.get('author', None),
+                            'description': entry.get('summary', ''),
+                            'enclosure': enclosure,
+                            'published_date': published_date,
+                        }
+                    )
+
+                except Exception as e:
+                    logger.error(f"Unknown error processing entry from {source}: {e}")
+
+                # Mark entries as delivered for new sources if 'initial' is True
+                if initial:
+                    logger.info(f"Initializing entries for new source: {source.name}")
+                    rss_entries = RSSEntry.objects.filter(source=source).order_by('-published_date')
+
+                    # Mark all but the most recent entry as delivered
+                    if rss_entries.exists():
+                        most_recent_entry = rss_entries.first()
+                        entries_to_mark_as_delivered = rss_entries.exclude(id=most_recent_entry.id)
+                        entries_to_mark_as_delivered.update(awaiting_delivery=False)
+
+        except Exception as e:
+            logger.error(f"Unknown error fetching RSS {source}: {e}")
+
     # Call the compile task to send new entries to the Discord bot
     if send_to_bot:
         compile_rss_bottasks.delay()
