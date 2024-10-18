@@ -14,6 +14,7 @@ License:     CC BY 4.0
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 
 from .models import *
 
@@ -214,8 +215,29 @@ class RSSEntryAdmin(admin.ModelAdmin):
     """
     list_display = ('title', 'link', 'author', 'guid', 'published_date', 'source', 'awaiting_delivery')
     search_fields = ('title', 'link', 'author', 'description')
-    list_filter = ('source', 'published_date')
+    list_filter = ('source', 'published_date', 'awaiting_delivery')  # Added awaiting_delivery filter
     ordering = ('-published_date',)
+    actions = ['mark_as_awaiting_delivery', 'mark_as_not_awaiting_delivery']  # Added custom actions
+
+    # Custom action to mark entries as awaiting delivery (True)
+    def mark_as_awaiting_delivery(self, request, queryset):
+        """
+        Mark as awaiting delivery
+        """
+        updated = queryset.update(awaiting_delivery=True)
+        self.message_user(request, f"{updated} entries marked as awaiting delivery.")
+
+    mark_as_awaiting_delivery.short_description = "Mark selected entries as Awaiting Delivery"
+
+    # Custom action to mark entries as not awaiting delivery (False)
+    def mark_as_not_awaiting_delivery(self, request, queryset):
+        """
+        Mark as NOT awaiting delivery
+        """
+        updated = queryset.update(awaiting_delivery=False)
+        self.message_user(request, f"{updated} entries marked as not awaiting delivery.")
+
+    mark_as_not_awaiting_delivery.short_description = "Mark selected entries as Sent for Delivery"
 
 
 @admin.register(BotTask)
@@ -230,6 +252,7 @@ class BotTaskAdmin(admin.ModelAdmin):
     search_fields = ('name', 'kwargs')
     list_editable = ('processed',)
     ordering = ('-created_at',)
+    actions = ['mark_as_processed', 'mark_as_unprocessed']  # Added custom actions
 
     def is_processed(self, obj):
         """
@@ -242,6 +265,24 @@ class BotTaskAdmin(admin.ModelAdmin):
             bool: True if processed, otherwise False.
         """
         return obj.processed is not None
-    
+
     is_processed.boolean = True
     is_processed.short_description = 'Processed'
+
+    def mark_as_processed(self, request, queryset):
+        """
+        Custom action to mark selected tasks as processed (True)
+        """
+        updated = queryset.update(processed=timezone.now())
+        self.message_user(request, f"{updated} tasks marked as processed.")
+
+    mark_as_processed.short_description = "Mark selected tasks as Processed"
+
+    def mark_as_unprocessed(self, request, queryset):
+        """
+        Custom action to mark selected tasks as unprocessed (False)
+        """
+        updated = queryset.update(processed=None)
+        self.message_user(request, f"{updated} tasks marked as unprocessed.")
+
+    mark_as_unprocessed.short_description = "Mark selected tasks as Unprocessed"
