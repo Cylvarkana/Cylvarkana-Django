@@ -162,7 +162,7 @@ def domain_report(domain_data: dict, output_format: str = 'md') -> discord.File:
         report_content += "## DNS Records\n"
         report_content += "| Subdomain | Record Type | Ports | Value | Last Seen |\n"
         report_content += "|-----------|-------------|-------|-------|-----------|\n"
-        
+
         for record in dns_records:
             subdomain = record.get('subdomain', '')
             record_type = record.get('type', '')
@@ -212,7 +212,7 @@ def domain_report(domain_data: dict, output_format: str = 'md') -> discord.File:
 
     # Build the file in memory
     file = io.StringIO(report_content)
-    discord_file = discord.File(file, filename=f"{domain_name.replace('.', '-')}_report.{format}")
+    discord_file = discord.File(file, filename=f"{domain_name.replace('.', '-')}_report.{output_format}")
 
     return discord_file
 

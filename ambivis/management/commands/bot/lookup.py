@@ -64,17 +64,25 @@ async def cve_lookup(interaction: discord.Interaction, id: str):
             )
         else:
             await interaction.followup.send(
-                f"No results found for CVE **{id.upper()}**. <:sad:1290688982681784371>",
+                f"No results found for **{id.upper()}**. <:sad:1290688982681784371>",
                 ephemeral=True
             )
 
     except Exception as e:
-        # Handle any lookup or processing errors
-        client.logger.error(f"{interaction.user} encountered an error while using cve lookup: {e}")
-        await interaction.followup.send(
-            f"⚠️🔍 We encountered an issue looking up **{id.upper()}**. Please try again later.",
-            ephemeral=True
-        )
+
+        if "No data found" in str(e):
+            client.logger.warning(e)
+            await interaction.followup.send(
+                f"No results found for **{id.upper()}**. <:sad:1290688982681784371>",
+                ephemeral=True
+            )
+        else:
+            # Unknown errors
+            client.logger.error(f"{interaction.user} encountered an error while using cve lookup: {e}")
+            await interaction.followup.send(
+                f"⚠️🔍 We encountered an issue looking up **{id.upper()}**. Please try again later.",
+                ephemeral=True
+            )
 
 # Constants for WhatsMyName lookup
 WMN_URL = "https://raw.githubusercontent.com/WebBreacher/WhatsMyName/main/wmn-data.json"
@@ -221,12 +229,12 @@ async def ip_lookup(interaction: discord.Interaction, ip: str):
         )
 
 @lookup_group.command(name="domain", description="Shodan lookup by domain")
-@app_commands.describe(domain="Domain name to look up", format="Output format (md or html)")
-@app_commands.choices(format=[
+@app_commands.describe(domain="Domain name to look up", output_format="Output format (md or html)")
+@app_commands.choices(output_format=[
     app_commands.Choice(name="Markdown", value="md"),
     app_commands.Choice(name="HTML", value="html")
 ])
-async def domain_lookup(interaction: discord.Interaction, domain: str, format: str = 'md'):
+async def domain_lookup(interaction: discord.Interaction, domain: str, output_format: str = 'md'):
     """
     Lookup for domain name details using the Shodan API.
     
@@ -262,7 +270,7 @@ async def domain_lookup(interaction: discord.Interaction, domain: str, format: s
 
         # Check results and send an appropriate response
         if results:
-            report_file = domain_report(results, format=format)
+            report_file = domain_report(results, output_format=output_format)
             message = f"""\
 **Domain Lookup Results are Ready!** <:motivated:1290688967624359987>
 >   **{domain}**

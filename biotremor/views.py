@@ -61,7 +61,7 @@ class Lookup(APIView):
 
         # Handle case where cve_lookup returns None
         if cve is None:
-            return Response({"error": f"No data found for CVE ID {cve_id}"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"No data found for {cve_id}"}, status=status.HTTP_404_NOT_FOUND)
 
         # Get rating
         cve_rating = CVERating.objects.filter(cve=cve).first()
@@ -136,7 +136,7 @@ class Rate(APIView):
         # Handle case where cve_lookup returns None
         if not cve:
             return Response(
-                {"error": f"No data found for CVE ID {cve_id}"},
+                {"error": f"No data found for {cve_id}"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
