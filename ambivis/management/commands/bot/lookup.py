@@ -221,12 +221,12 @@ async def ip_lookup(interaction: discord.Interaction, ip: str):
         )
 
 @lookup_group.command(name="domain", description="Shodan lookup by domain")
-@app_commands.describe(domain="Domain name to look up", format="Output format (md or html)")
-@app_commands.choices(format=[
+@app_commands.describe(domain="Domain name to look up", output_format="Output format (md or html)")
+@app_commands.choices(output_format=[
     app_commands.Choice(name="Markdown", value="md"),
     app_commands.Choice(name="HTML", value="html")
 ])
-async def domain_lookup(interaction: discord.Interaction, domain: str, format: str = 'md'):
+async def domain_lookup(interaction: discord.Interaction, domain: str, output_format: str = 'md'):
     """
     Lookup for domain name details using the Shodan API.
     
@@ -262,7 +262,7 @@ async def domain_lookup(interaction: discord.Interaction, domain: str, format: s
 
         # Check results and send an appropriate response
         if results:
-            report_file = domain_report(results, format=format)
+            report_file = domain_report(results, output_format=output_format)
             message = f"""\
 **Domain Lookup Results are Ready!** <:motivated:1290688967624359987>
 >   **{domain}**
